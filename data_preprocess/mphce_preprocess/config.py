@@ -15,5 +15,5 @@ class PreprocessArgs:
     sfreq: int = 256
     group_num: int = 5
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/MPHCE_EEG'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/MPHCE'
+    data_root: str = '.../physio_signal_dataset/MPHCE_EEG'
+    data_save_dir: str = '.../benchmark/datasets/MPHCE'

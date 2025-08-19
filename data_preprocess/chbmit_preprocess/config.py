@@ -17,5 +17,5 @@ class PreprocessArgs:
     normal_ratio: float = 3
     label_thres: float = 0.5
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/CHB_MIT/files/chbmit/1.0.0/'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/CHBMIT'
+    data_root: str = '.../physio_signal_dataset/CHB_MIT/files/chbmit/1.0.0/'
+    data_save_dir: str = '.../benchmark/datasets/CHBMIT'

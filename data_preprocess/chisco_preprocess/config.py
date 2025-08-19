@@ -14,5 +14,5 @@ class PreprocessArgs:
     seq_len: int = 1650   # 3.3 secs
     group_num: int = 4
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/Chisco'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/Chisco'
+    data_root: str = '.../physio_signal_dataset/Chisco'
+    data_save_dir: str = '.../benchmark/datasets/Chisco'

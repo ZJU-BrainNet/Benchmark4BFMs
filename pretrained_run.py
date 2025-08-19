@@ -60,11 +60,11 @@ if __name__ == '__main__':
                              help='The waiting epoch number for early stopping.')
     group_train.add_argument('--from_pretrained', action='store_false', # when not --from_pretrained, must set the load_ckpt_path
                              help='Whether to finetune from pretrained weights')
-    group_train.add_argument('--load_ckpt_path', type=str, default=f'/data/brainnet/benchmark/ckpt/',    # None '/data/brainnet/benchmark/ckpt/'
+    group_train.add_argument('--load_ckpt_path', type=str, default=f'.../benchmark/ckpt/',    # None '.../benchmark/ckpt/'
                              help='The path to load checkpoint (.pt file or the upper path).')
     group_train.add_argument('--load_best', action='store_false',
                              help='Whether to load the best state in the checkpoints (to continue unsupervised training or begin finetuning).')
-    group_train.add_argument('--save_ckpt_path', type=str, default=f'/data/brainnet/benchmark/ckpt/',
+    group_train.add_argument('--save_ckpt_path', type=str, default=f'.../benchmark/ckpt/',
                              help='The path to save checkpoint')
     group_train.add_argument('--model_lr', type=float, default=1e-5,
                              help='The learning rate of the pretrained model.')

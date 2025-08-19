@@ -15,5 +15,5 @@ class PreprocessArgs:
     seq_len: int = 10  # secs
     group_num: int = 5
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/depression_rest_EEG/ds003478-download'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/Depression_122'
+    data_root: str = '.../physio_signal_dataset/depression_rest_EEG/ds003478-download'
+    data_save_dir: str = '.../benchmark/datasets/Depression_122'

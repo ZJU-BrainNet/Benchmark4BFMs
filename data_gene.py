@@ -26,7 +26,7 @@ if __name__ == '__main__':
                                 help='The number of points in a patch.')
     group_database.add_argument('--interpolate_kind', type=str, default='linear',
                                 help='What kind of interpolate when unifying the length.')
-    group_database.add_argument('--data_save_dir', type=str, default='/data/brainnet/benchmark/gene_data/',
+    group_database.add_argument('--data_save_dir', type=str, default='.../benchmark/gene_data/',
                                 help='The path to save the generated data.')
 
     argv = sys.argv[1:]

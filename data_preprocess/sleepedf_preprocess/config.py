@@ -17,5 +17,5 @@ class PreprocessArgs:
     group_num: int = 5
     subject_num: int = 44
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/SleepEDFx_dataset/physionet.org/files/sleep-edfx/1.0.0/sleep-telemetry'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/SleepEDFx'
+    data_root: str = '.../physio_signal_dataset/SleepEDFx_dataset/physionet.org/files/sleep-edfx/1.0.0/sleep-telemetry'
+    data_save_dir: str = '.../benchmark/datasets/SleepEDFx'

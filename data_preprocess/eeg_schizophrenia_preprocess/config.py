@@ -16,5 +16,5 @@ class PreprocessArgs:
 
     sfreq: int = 250
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/EEG_schizophrenia/edf_files'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/EEG_schizophrenia'
+    data_root: str = '.../physio_signal_dataset/EEG_schizophrenia/edf_files'
+    data_save_dir: str = '.../benchmark/datasets/EEG_schizophrenia'

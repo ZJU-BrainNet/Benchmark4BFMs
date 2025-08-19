@@ -15,5 +15,5 @@ class PreprocessArgs:
     sfreq: int = 250
     group_num: int = 4
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/EEGMat'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/EEGMat'
+    data_root: str = '.../physio_signal_dataset/EEGMat'
+    data_save_dir: str = '.../benchmark/datasets/EEGMat'

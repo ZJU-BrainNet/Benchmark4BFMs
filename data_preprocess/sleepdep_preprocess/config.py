@@ -15,5 +15,5 @@ class PreprocessArgs:
     seq_len: int = 5  # secs
     group_num: int = 5
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/Sleep_Deprivation_EEG/ds004902-download'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/Sleep_Deprivation'
+    data_root: str = '.../physio_signal_dataset/Sleep_Deprivation_EEG/ds004902-download'
+    data_save_dir: str = '.../benchmark/datasets/Sleep_Deprivation'

@@ -15,5 +15,5 @@ class PreprocessArgs:
     seq_len: int = 10  # secs
     group_num: int = 5
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/ADFD_EEG/ds004504-download'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/ADFD'
+    data_root: str = '.../ADFD_EEG/ds004504-download'
+    data_save_dir: str = '.../benchmark/datasets/ADFD'

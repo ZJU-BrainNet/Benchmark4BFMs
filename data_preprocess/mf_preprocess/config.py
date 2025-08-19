@@ -20,5 +20,5 @@ class PreprocessArgs:
     sfreq: int = 1000
     group_num: int = 6
 
-    data_root: str = '/data/brainnet/public_dataset'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets'
+    data_root: str = '.../public_dataset'
+    data_save_dir: str = '.../benchmark/datasets'

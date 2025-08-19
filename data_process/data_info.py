@@ -1,6 +1,6 @@
 
 data_info_dict = {
-    'MAYO': {'data_path': '/data/brainnet/benchmark/datasets/MAYO/group_data',
+    'MAYO': {'data_path': '.../benchmark/datasets/MAYO/group_data',
         'group_num': 6,
         'split': [3, 1, 2],
         'various_ch_num': False,
@@ -10,7 +10,7 @@ data_info_dict = {
         'seq_len': 3,
         'downstream': 'disorder',
     },
-    'FNUSA': {'data_path': '/data/brainnet/benchmark/datasets/FNUSA/group_data',
+    'FNUSA': {'data_path': '.../benchmark/datasets/FNUSA/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -20,7 +20,7 @@ data_info_dict = {
         'seq_len': 3,
         'downstream': 'disorder',
     },
-    'CHBMIT': {'data_path': '/data/brainnet/benchmark/datasets/CHBMIT/group_data',
+    'CHBMIT': {'data_path': '.../benchmark/datasets/CHBMIT/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -31,7 +31,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'SleepEDFx': {
-        'data_path': '/data/brainnet/benchmark/datasets/SleepEDFx/group_data',
+        'data_path': '.../benchmark/datasets/SleepEDFx/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -42,7 +42,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'ADFD':{
-        'data_path': '/data/brainnet/benchmark/datasets/ADFD/group_data_AD',
+        'data_path': '.../benchmark/datasets/ADFD/group_data_AD',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -53,7 +53,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'ADHD_Adult':{
-        'data_path': '/data/brainnet/benchmark/datasets/Adults_ADHD/group_data',
+        'data_path': '.../benchmark/datasets/Adults_ADHD/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -64,7 +64,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'ADHD_Child':{
-        'data_path': '/data/brainnet/benchmark/datasets/Child_ADHD/group_data',
+        'data_path': '.../benchmark/datasets/Child_ADHD/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -75,7 +75,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'Depression_122_BDI':{
-        'data_path': '/data/brainnet/benchmark/datasets/Depression_122/group_data_BDI',
+        'data_path': '.../benchmark/datasets/Depression_122/group_data_BDI',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -86,7 +86,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'Depression_122_STAI':{
-        'data_path': '/data/brainnet/benchmark/datasets/Depression_122/group_data_STAI',
+        'data_path': '.../benchmark/datasets/Depression_122/group_data_STAI',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -97,7 +97,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'Schizophrenia_28':{
-        'data_path': '/data/brainnet/benchmark/datasets/EEG_schizophrenia/group_data',
+        'data_path': '.../benchmark/datasets/EEG_schizophrenia/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -108,7 +108,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'MPHCE_mdd':{
-        'data_path': '/data/brainnet/benchmark/datasets/MPHCE/group_data_mdd',
+        'data_path': '.../benchmark/datasets/MPHCE/group_data_mdd',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -119,7 +119,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'MPHCE_state':{
-        'data_path': '/data/brainnet/benchmark/datasets/MPHCE/group_data_state',
+        'data_path': '.../benchmark/datasets/MPHCE/group_data_state',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -130,7 +130,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'SEED_IV':{
-        'data_path': '/data/brainnet/benchmark/datasets/SEED_IV/group_data',
+        'data_path': '.../benchmark/datasets/SEED_IV/group_data',
         'group_num': 6,
         'split': [3, 1, 2],
         'various_ch_num': False,
@@ -141,7 +141,7 @@ data_info_dict = {
         'downstream': 'Motor imagine',
     },
     'SD_71':{
-        'data_path': '/data/brainnet/benchmark/datasets/Sleep_Deprivation/group_data',
+        'data_path': '.../benchmark/datasets/Sleep_Deprivation/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -152,7 +152,7 @@ data_info_dict = {
         'downstream': 'disorder',
     },
     'EEGMat':{
-        'data_path': '/data/brainnet/benchmark/datasets/EEGMat/group_data',
+        'data_path': '.../benchmark/datasets/EEGMat/group_data',
         'group_num': 4,
         'split': [2, 1, 1],
         'various_ch_num': False,
@@ -163,7 +163,7 @@ data_info_dict = {
         'downstream': 'Motor imagine',
     },
     'DEAP':{
-        'data_path': '/data/brainnet/benchmark/datasets/DEAP/group_data',
+        'data_path': '.../benchmark/datasets/DEAP/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -174,7 +174,7 @@ data_info_dict = {
         'downstream': 'emotion',
     },
     'EEGMMIDB_R':{
-        'data_path': '/data/brainnet/benchmark/datasets/EEGMMIDB/group_data_R',
+        'data_path': '.../benchmark/datasets/EEGMMIDB/group_data_R',
         'group_num': 6,
         'split': [3, 1, 2],
         'various_ch_num': False,
@@ -185,7 +185,7 @@ data_info_dict = {
         'downstream': 'Motor imagine',
     },
     'EEGMMIDB_I':{
-        'data_path': '/data/brainnet/benchmark/datasets/EEGMMIDB/group_data_I',
+        'data_path': '.../benchmark/datasets/EEGMMIDB/group_data_I',
         'group_num': 6,
         'split': [3, 1, 2],
         'various_ch_num': False,
@@ -195,7 +195,7 @@ data_info_dict = {
         'seq_len': 4,
         'downstream': 'Motor imagine',
     },
-    'UCSD_ON': {'data_path': '/data/brainnet/benchmark/datasets/UCSD/group_data_on',
+    'UCSD_ON': {'data_path': '.../benchmark/datasets/UCSD/group_data_on',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -205,7 +205,7 @@ data_info_dict = {
         'seq_len': 10,
         'downstream': 'disorder',
     },
-    'UCSD_OFF': {'data_path': '/data/brainnet/benchmark/datasets/UCSD/group_data_off',
+    'UCSD_OFF': {'data_path': '.../benchmark/datasets/UCSD/group_data_off',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -215,7 +215,7 @@ data_info_dict = {
         'seq_len': 10,
         'downstream': 'disorder',
     },
-    'ISRUC': {'data_path': '/data/brainnet/benchmark/datasets/ISRUC/group_data',
+    'ISRUC': {'data_path': '.../benchmark/datasets/ISRUC/group_data',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,
@@ -225,7 +225,7 @@ data_info_dict = {
         'seq_len': 30,
         'downstream': 'disorder',
     },
-    'AD-65': {'data_path': '/data/brainnet/benchmark/datasets/ADFD/group_data_AD',
+    'AD-65': {'data_path': '.../benchmark/datasets/ADFD/group_data_AD',
         'group_num': 5,
         'split': [3, 1, 1],
         'various_ch_num': False,

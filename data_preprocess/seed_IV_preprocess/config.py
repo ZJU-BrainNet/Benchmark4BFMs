@@ -17,5 +17,5 @@ class PreprocessArgs:
     sfreq: int = 200
     group_num: int = 6
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/SEED_IV/eeg_raw_data'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/SEED_IV'
+    data_root: str = '.../physio_signal_dataset/SEED_IV/eeg_raw_data'
+    data_save_dir: str = '.../benchmark/datasets/SEED_IV'

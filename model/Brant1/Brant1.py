@@ -21,7 +21,7 @@ class Brant1_Trainer:
         args.freeze_encoder = False
         args.final_dim = 1024
         args.start_epo_idx = 21
-        # args.power_save_path = f'/data/brainnet/benchmark/gene_data/{args.data_id}/power.npy'
+        # args.power_save_path = f'.../benchmark/gene_data/{args.data_id}/power.npy'
         return args
 
     @staticmethod

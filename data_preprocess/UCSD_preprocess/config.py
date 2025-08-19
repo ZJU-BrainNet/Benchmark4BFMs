@@ -14,5 +14,5 @@ class PreprocessArgs:
     sfreq: int = 256    # 512 downsampled
     group_num: int = 5
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/UCSD_Parkinson/ds002778-download'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/UCSD'
+    data_root: str = '.../physio_signal_dataset/UCSD_Parkinson/ds002778-download'
+    data_save_dir: str = '.../benchmark/datasets/UCSD'

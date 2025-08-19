@@ -15,5 +15,5 @@ class PreprocessArgs:
     sfreq: int = 160
     group_num: int = 6
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/EEG_motor_movement_imagery/physionet.org/files/eegmmidb/1.0.0'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/EEGMMIDB'
+    data_root: str = '.../physio_signal_dataset/EEG_motor_movement_imagery/physionet.org/files/eegmmidb/1.0.0'
+    data_save_dir: str = '.../benchmark/datasets/EEGMMIDB'

@@ -49,8 +49,8 @@ class TrainArgs:
     channel_num: int = 1
     baseline: bool = False
 
-    data_root: str = '/data/brainnet/public_dataset'
-    ckpt_path: str = '/data/yzz/Brant-2/model_ckpt/'
+    data_root: str = '.../public_dataset'
+    ckpt_path: str = '.../Brant-2/model_ckpt/'
     data_save_dir: str = '/home/nas/share/TUEG/npy/mf'
 
 

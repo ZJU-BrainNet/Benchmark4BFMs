@@ -38,7 +38,7 @@ args.data_id = '{}_ssn{}_sl{}_pl{}'.format(
     args.patch_len,
 )
 
-save_logit_path = f'/data/brainnet/benchmark/test_logits/{args.model}_exp{args.exp_id}_cv{args.cv_id}_{args.data_id}/'
+save_logit_path = f'.../benchmark/test_logits/{args.model}_exp{args.exp_id}_cv{args.cv_id}_{args.data_id}/'
 
 
 

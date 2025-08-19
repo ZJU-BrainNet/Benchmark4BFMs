@@ -17,5 +17,5 @@ class PreprocessArgs:
     ch_num: int = 32
     threshold: float = 5.0
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/DEAP_dataset'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/DEAP'
+    data_root: str = '.../physio_signal_dataset/DEAP_dataset'
+    data_save_dir: str = '.../benchmark/datasets/DEAP'

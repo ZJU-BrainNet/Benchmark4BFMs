@@ -13,5 +13,5 @@ class PreprocessArgs:
     group_num: int = 4
     sfreq: int = 250
 
-    data_root: str = '/data/brainnet/physio_signal_dataset/BCIC_dataset/BCICIV_2a_gdf'
-    data_save_dir: str = '/data/brainnet/benchmark/datasets/BCICIV_2a'
+    data_root: str = '.../physio_signal_dataset/BCIC_dataset/BCICIV_2a_gdf'
+    data_save_dir: str = '.../benchmark/datasets/BCICIV_2a'
