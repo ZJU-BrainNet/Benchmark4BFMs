@@ -2,11 +2,67 @@ import torch
 from omegaconf import OmegaConf
 from torch import nn
 from argparse import Namespace
+import torchaudio
+from einops import rearrange, reduce
 
 from data_process.data_info import data_info_dict
 from model.BrainBERT.models.masked_tf_model import MaskedTFModel
 from model.pre_cnn import ConvNet
 from model.model_config import ModelPathArgs
+
+
+def _torch_zscore(x, dim: int):
+    """
+    Z-score normalization along specified dim using torch.
+    """
+    mean = x.mean(dim=dim, keepdim=True)
+    std = x.std(dim=dim, unbiased=False, keepdim=True)
+    std_clamped = std.clone()
+    std_clamped[std_clamped == 0] = 1.0
+    return (x - mean) / std_clamped
+
+class STFTTorchaudioPreprocessor(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        # torchaudio's Spectrogram provides magnitude
+        self.spectrogram = torchaudio.transforms.Spectrogram(
+            n_fft=cfg.nperseg,
+            win_length=cfg.nperseg,
+            hop_length=cfg.nperseg - cfg.noverlap,
+            normalized=False,
+            center=True,
+            pad_mode='reflect'
+        )
+
+    def forward(self, wav: torch.Tensor):
+        # wav: (..., time) or (batch, time)
+        # Ensure shape (batch, time)
+        if wav.dim() == 1:
+            wav = wav.unsqueeze(0)
+
+        # Compute STFT: returns complex tensor shape (batch, freq, time, complex=2)
+        spec = self.spectrogram(wav)
+        # Truncate frequency channels if needed
+        if self.cfg.freq_channel_cutoff is not None:
+            spec = spec[:, : self.cfg.freq_channel_cutoff, :]
+
+        # Normalization
+        if self.cfg.normalizing == 'zscore':
+            # zscore over time axis
+            spec = _torch_zscore(spec, dim=-1)
+            # Avoid all-zero bands
+            if spec.std() == 0:
+                spec = torch.ones_like(spec)
+            # remove edge frames
+            spec = spec[..., 5:-5]
+        elif self.cfg.normalizing == 'db':
+            spec = torch.log(spec + 1e-6)
+        # Replace any NaNs
+        spec = torch.nan_to_num(spec, nan=0.0)
+        # Transpose to match original: (batch, time, freq)
+        output = spec.transpose(1, 2)
+        return output
 
 
 class BrainBERT_Trainer:
@@ -16,6 +72,10 @@ class BrainBERT_Trainer:
     @staticmethod
     def set_config(args: Namespace):
         args.final_dim = 768
+        args.nperseg = 100
+        args.noverlap = 80
+        args.freq_channel_cutoff = 40
+        args.normalizing = 'zscore'
         return args
 
     @staticmethod
@@ -47,19 +107,22 @@ class BrainBERT_Trainer:
 class BrainBERT(nn.Module):
     def __init__(self, args: Namespace,):
         super(BrainBERT, self).__init__()
-        in_patch_len = 40
-        self.cnn = ConvNet(num_inputs=1, num_channels=[in_patch_len])
-
+        # in_patch_len = 40
+        # self.cnn = ConvNet(num_inputs=1, num_channels=[in_patch_len])
+        self.cnn = STFTTorchaudioPreprocessor(args)
         self.enc = self.load_pretrained_weights(args)
 
     def forward(self, x):
         bsz, ch_num, seq_len, patch_len = x.shape
-        x = x.reshape(bsz*ch_num*seq_len, 1, patch_len)
+        # x = x.reshape(bsz*ch_num*seq_len, 1, patch_len)
+        x = x.reshape(bsz*ch_num, seq_len*patch_len)
         emb = self.cnn(x)
-        emb = torch.mean(emb, dim=-1).reshape(bsz*ch_num, seq_len, -1)
+        # emb = torch.mean(emb, dim=-1).reshape(bsz*ch_num, seq_len, -1)
         emb = self.enc.forward(emb, intermediate_rep=True)
-        emb = emb.reshape(bsz, ch_num, seq_len, -1)
-        emb = torch.mean(emb, dim=2)
+        emb = rearrange(emb, '(b c) s d -> b c s d', c=ch_num)
+        emb = reduce(emb, 'b c s d -> b c d', 'mean')
+        # emb = emb.reshape(bsz, ch_num, seq_len, -1)
+        # emb = torch.mean(emb, dim=2)
         return emb
 
     @staticmethod
