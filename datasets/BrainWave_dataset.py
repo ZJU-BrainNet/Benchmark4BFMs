@@ -31,6 +31,7 @@ spec_window_secs_dict = {
     'DEAP': 0.25,
     'EEGMMIDB_R': 0.25,
     'EEGMMIDB_I': 0.25,
+    'BCI-2a': 0.25,
 }
 
 class BrainWave_Dataset(Dataset):

@@ -23,6 +23,8 @@ class BFMDataset(Dataset):
                 model_type: str = "seq2seq",
                 seed: int = 0,
                 drop_prob: float = 0.0,
+                random_seed: int = 42,
+                max_channels_per_seq: int = 10,
                 ):
         assert model_type in ["seq2seq", "causal"]
         # x: (seq_num, ch_num, N)
@@ -30,9 +32,33 @@ class BFMDataset(Dataset):
         self.seq_num, self.ch_num, N = x.shape
         x = _std_data_segment(x)    # time level normalization
 
-        self.ch_id = [ch for _ in range(self.seq_num) for ch in range(self.ch_num)]
-        self.x = x.reshape(-1, N)
-        self.y = np.repeat(y, self.ch_num)
+        # self.ch_id = [ch for _ in range(self.seq_num) for ch in range(self.ch_num)]
+        # self.x = x.reshape(-1, N)
+        # self.y = np.repeat(y, self.ch_num)
+        
+        # random choose
+        self.rng = np.random.RandomState(random_seed)
+        sequence_seeds = self.rng.randint(0, 1000, size=self.seq_num)
+        self.max_channels_per_seq = min(max_channels_per_seq, self.ch_num)
+        self.x = []
+        self.y = []
+        self.ch_id = []
+        
+        for seq_idx in range(self.seq_num):
+            if self.ch_num > self.max_channels_per_seq:
+                seq_rng = np.random.RandomState(sequence_seeds[seq_idx])
+                selected_chs = seq_rng.choice(
+                    self.ch_num, 
+                    size=self.max_channels_per_seq, 
+                    replace=False
+                )
+            else:
+                selected_chs = np.arange(self.ch_num)
+            
+            for ch_idx in selected_chs:
+                self.x.append(x[seq_idx, ch_idx, :])
+                self.y.append(y[seq_idx])
+                self.ch_id.append(ch_idx)
         
         self.is_train = is_train 
         self.mode = 'training' if is_train and args.run_mode == 'finetune' else 'validation'

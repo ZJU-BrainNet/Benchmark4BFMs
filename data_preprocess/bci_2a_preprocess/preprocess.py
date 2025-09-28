@@ -47,6 +47,8 @@ def get_data_all(root_path, data_save_dir):
                                 proj=True, baseline=None, preload=True)
         labels = epochs.events[:, -1]-events_id['769']
         datas = epochs.get_data()[:, :, 750]
+        datas = np.array(datas, dtype=np.float32)
+        
         np.save(os.path.join(data_save_dir, f'{file[:3]}_data.npy'), datas)
         np.save(os.path.join(data_save_dir, f'{file[:3]}_label.npy'), labels)
 

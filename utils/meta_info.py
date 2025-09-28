@@ -68,6 +68,7 @@ get_data_dict = {
     'EEGMMIDB_R': default_get_data,
     'EEGMMIDB_I': default_get_data,
     'AD-65': default_get_data,
+    'BCI-2a': default_get_data,
 }
 
 metrics_dict = {
@@ -95,6 +96,7 @@ metrics_dict = {
     'EEGMMIDB_I': MultiClassMetrics,
     'Depression_122_STAI': MultiClassMetrics,
     'AD-65': BinaryClassMetrics,
+    'BCI-2a': MultiClassMetrics,
 }
 
 ### To add a new method, please update the following dicts

@@ -121,13 +121,16 @@ class NeuroLMDataset(Dataset):
                         2: torch.IntTensor([50257] + encode('Question: Which emotion type does this EEG segment belong to? Answer: High Valence and Low Dominance <|endoftext|>')),
                         3: torch.IntTensor([50257] + encode('Question: Which emotion type does this EEG segment belong to? Answer: High Valence and High Dominance <|endoftext|>'))
                     }
-                elif 'EEGMMIDB' in args.dataset:
+                elif 'EEGMMIDB' in args.dataset or 'BCI-2a' in args.dataset:
                     self.text = {
                         0: torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: Single left fist <|endoftext|>')),
                         1: torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: Single right fist <|endoftext|>')),
                         2: torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: Both fists <|endoftext|>')),
                         3: torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: Both feet <|endoftext|>'))
                     }
+                    if 'BCI-2a' in args.dataset:
+                        self.text[2] = torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: Both feet <|endoftext|>'))
+                        self.text[3] = torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: Tongue movement <|endoftext|>'))
             args.prompt_len = len(self.prompt)
 
 
