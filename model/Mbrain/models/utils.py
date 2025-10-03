@@ -28,6 +28,9 @@ def similarity_mean_eeg(args: Namespace):
     print('\n', '-'*20,'build coarse-grained correlation matrix','-'*20)
     tr_x_list, _ = get_data_dict[args.dataset](args, step='train')
     bsz, ch_num, N = tr_x_list[0].shape
+    if N % args.patch_len != 0:
+        args.seq_len = int(N // args.patch_len)
+        tr_x_list[0] = tr_x_list[0][:, :, :args.seq_len*args.patch_len]
     x = tr_x_list[0].reshape(bsz, ch_num, -1, args.patch_len)
     sim_matrix_all = draw_ten_sec_all(x)
     del tr_x_list

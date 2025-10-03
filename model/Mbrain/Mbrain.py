@@ -85,6 +85,9 @@ class Mbrain(nn.Module):
         x, y = data_packet
         
         bsz, ch_num, N = x.shape
+        if N % args.patch_len != 0:
+            args.seq_len = int(N // args.patch_len)
+            x = x[:, :, :args.seq_len*args.patch_len]
         x = x.reshape(bsz, -1, ch_num, args.patch_len)
 
         emb = model(x, y)

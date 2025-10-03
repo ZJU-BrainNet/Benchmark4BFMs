@@ -1,7 +1,7 @@
 import os
 import re
 import sys
-sys.path.append('/home/sfq/foundation_model/bench-mark')
+sys.path.append('.../Benchmark4BFMs')
 import numpy as np
 import mne
 import warnings

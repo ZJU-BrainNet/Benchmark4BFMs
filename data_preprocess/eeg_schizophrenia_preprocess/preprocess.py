@@ -1,7 +1,7 @@
 import os
 import pickle
 import sys
-sys.path.append('/home/sfq/foundation_model/bench-mark')
+sys.path.append('.../Benchmark4BFMs')
 from mne.io import read_raw_edf
 import numpy as np
 import json

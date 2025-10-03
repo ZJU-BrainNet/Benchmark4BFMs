@@ -4,7 +4,7 @@ import pandas as pd
 from scipy.io import loadmat
 import warnings
 
-sys.path.append('/home/sfq/foundation_model/bench-mark')
+sys.path.append('.../Benchmark4BFMs')
 from mne.io import read_raw_edf
 import numpy as np
 from scipy import signal

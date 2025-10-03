@@ -41,6 +41,7 @@ def update_logs(args, logs, epo_loss, metrics=None):
             logs[f"Spec"] = metrics.spec_mean * 100.0
             logs[f"MF1"] = metrics.f_one_macro * 100.0
             logs[f"Kappa"] = metrics.kappa * 100.0
+            logs[f"AUROC"] = metrics.auc_roc_macro * 100.0
         else: raise NotImplementedError(f'Illegal number of classes.')
 
     return logs

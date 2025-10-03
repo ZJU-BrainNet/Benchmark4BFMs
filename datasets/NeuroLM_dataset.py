@@ -131,6 +131,14 @@ class NeuroLMDataset(Dataset):
                     if 'BCI-2a' in args.dataset:
                         self.text[2] = torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: Both feet <|endoftext|>'))
                         self.text[3] = torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: Tongue movement <|endoftext|>'))
+                elif 'Chisco' in args.dataset:
+                    self.text = {}
+                    self.text_max_len = 40
+                    with open(args.label_path, 'r') as f:
+                        labelmap = json.load(f)
+                    for label in labelmap.keys():
+                        self.text[int(label)] = torch.IntTensor([50257] + encode(f'Question: Which {args.downstream} type does this EEG segment belong to? Answer: {labelmap[label]} <|endoftext|>'))
+                    
             args.prompt_len = len(self.prompt)
 
 
@@ -149,6 +157,7 @@ class NeuroLMDataset(Dataset):
         label = self.y[index]
         
         seq_len = eeg.shape[1] // self.window_size
+        eeg = eeg[:, :seq_len*self.window_size]
         eeg = torch.from_numpy(eeg.reshape(-1, self.window_size)).float()   # c (s w) -> (s c) w
         input_chans = self.get_chans(self.ch_name, seq_len)
         input_time = [i for i in range(seq_len) for _ in range(self.ch_num)]

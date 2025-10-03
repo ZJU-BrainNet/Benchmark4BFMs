@@ -49,7 +49,7 @@ class LitEEGPTCausal(pl.LightningModule):
     def __init__(self, args: Namespace):
         super().__init__()    
         self.chans_num = args.cnn_in_channels
-        self.total_len = args.patch_len*args.seq_len
+        self.total_len = int(args.patch_len*args.seq_len)
         # init model
         target_encoder = EEGTransformer(
             img_size=[self.chans_num, self.total_len],        # 256*30

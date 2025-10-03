@@ -1,11 +1,66 @@
-# /data/share/data/neural_decoding/concept_data/SHi_Hongbo/design2/extract_data
-# 600 - 2700, 1000Hz
 import os
+import sys
+sys.path.append('.../Benchmark4BFMs')
 import numpy as np
 import pickle
+import json
 from data_preprocess.chisco_preprocess.config import PreprocessArgs
+from data_preprocess.utils import _split_subjects
 
 
+def load_subject(args, subjects, task):
+    valid_run_ids = set([f"0{i}" for i in range(1, 46)])
+    datas, labels = [], []
+    for subj in subjects:
+        subj_path = os.path.join(args.data_root, f"sub-{subj}", "eeg")
+        if not os.path.exists(subj_path):
+            print(f"⚠️ Subject folder not found: {subj_path}")
+            continue
+
+        for fn in sorted(os.listdir(subj_path)):
+            if not (fn.endswith(".pkl") and f"sub-{subj}" in fn and f"task-{task}" in fn):
+                continue
+            try:
+                run_id = fn.split("run-")[1].split("_")[0]
+            except IndexError:
+                print(f"⚠️ 无法解析 run 编号: {fn}")
+                continue
+            if run_id not in valid_run_ids:
+                continue
+
+            with open(os.path.join(subj_path, fn), "rb") as f:
+                trials = pickle.load(f)
+            with open(args.label_path, 'r') as f:
+                textmap = json.load(f)
+                
+            for tr in trials:
+                sentence = str(tr.get("text", "")).strip()
+                eeg = tr["input_features"][0, :122, :args.seq_len].astype(np.float32) * 1e6
+                datas.append(eeg)
+                labels.append(textmap[sentence])
+    return np.array(datas, dtype=np.float32), np.array(labels)
+                    
+
+def group_data(args, task):
+    path = os.path.join(args.data_save_dir, 'subject_groups.pkl')
+    class_path = os.path.join(args.data_save_dir, 'classnumber.json')
+    if os.path.exists(path):
+        groups = pickle.load(open(path, 'rb'))
+    else:
+        subject_list = [str(i).zfill(2) for i in range(1, args.subject_num + 1)]
+        groups = _split_subjects(subject_list, args.group_num)
+        pickle.dump(groups, open(path, 'wb'))
+    if not os.path.exists(class_path):
+        with open(args.class_path, "r", encoding='gbk') as f:
+            classnumber = json.load(f)
+        with open(class_path, "w") as f:
+            json.dump(classnumber, f, ensure_ascii=False, indent=4)
+
+    for i, g in enumerate(groups):
+        data, label = load_subject(args, g, task)
+        np.save(os.path.join(args.data_save_dir, f'group_data_{task}/group_{i}_data.npy'), data)
+        np.save(os.path.join(args.data_save_dir, f'group_data_{task}/group_{i}_label.npy'), label)
+        print(f'data and label of group {i} saved')
 
 def split_data(data, label, num_groups, path, subject):
     save_path = os.path.join(path, f'sub-0{subject}', 'group_data')
@@ -25,48 +80,17 @@ def split_data(data, label, num_groups, path, subject):
         # 保存为.npy文件
         np.save(os.path.join(save_path, f'group_{i}_data.npy'), group_data)
         np.save(os.path.join(save_path, f'group_{i}_label.npy'), group_label)
-        
-        
 
-def get_sub_data(root_path, args):
-    root_path = os.path.join(args.data_root, 'preprocessed_pkl', f'sub-0{subject}', 'eeg')
-    data_list = []
-    labels_list = []
-    for file in os.listdir(root_path):
-        if 'imagine' not in file:
-            continue
 
-        file_path = os.path.join(root_path, file)
-        
-        with open(file_path, 'rb') as f:
-            pickles = pickle.load(f)
-        
-        for trial in pickles:
-            input_features = trial['input_features'][0, :122, :args.seq_len] * 1e6
-            label_text = trial['text'].strip()
+def store_channel(args, channels):
+    import json
+    channel_file = os.path.join(args.data_save_dir, 'group_data', 'channels_lst.json')
+    ch_names = [name.split('-')[0]+'-'+name.split('-')[1] for name in channels]
+    if not os.path.exists(channel_file):
+        with open(channel_file, 'w') as f:
+            json.dump(ch_names, f)
             
-            data_list.append(input_features.astype(np.float32))
-            labels_list.append(label_text)
 
-    if len(data_list) == 0:
-        raise ValueError(f"No data loaded for subject {subject}")
-        
-    data_array = np.stack(data_list)
-    labels_array = np.array(labels_list)
-    textmap_path =  os.path.join(root_path, 'json/textmaps.json')
-    
-    mapped_labels = np.array([textmap_path.get(lbl, -1) for lbl in labels_array], dtype=np.int32)
-    
-    valid_indices = mapped_labels >= 0
-    data_array = data_array[valid_indices]
-    mapped_labels = mapped_labels[valid_indices]
-    print(f"Final data shape: {data_array.shape}, labels shape: {mapped_labels.shape}")
-    
-    return data_array, mapped_labels
-    
-
-root_path = '/data/share/data/neural_decoding/concept_data/SHi_Hongbo/design2/extract_data'
 args = PreprocessArgs()
-for subject in range(1, args.subject_num+1):
-    datas, labels = get_sub_data(root_path, args)
-    split_data(datas, labels, args.group_num, args.data_save_dir, subject)
+for task in ['read', 'imagine']:
+    group_data(args, task)

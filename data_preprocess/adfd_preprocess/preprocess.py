@@ -1,7 +1,7 @@
 import os
 import pickle
 import sys
-sys.path.append('/home/sfq/foundation_model/bench-mark')
+sys.path.append('.../Benchmark4BFMs')
 import numpy as np
 import pandas as pd
 import json

@@ -35,6 +35,8 @@ class NeuroGPT_Trainer:
         args.hidden_activation = 'gelu_new'
         args.num_hidden_layers_unembedding_model = 1
         args.chunk_len = args.patch_len
+        if args.seq_len * 10 // 10 != args.seq_len:
+            args.seq_len = int(args.seq_len * 10 // 10)
         
         return args
 
@@ -160,6 +162,9 @@ class NeuroGPT(nn.Module):
     def forward_propagate(args, data_packet, model, clsf, loss_func=None):
         x, y = data_packet
         bsz, ch_num, N = x.shape
+        if N % args.patch_len != 0:
+            args.seq_len = int(N // args.patch_len)
+            x = x[:, :, :args.seq_len*args.patch_len]
         x = x.reshape(bsz, ch_num, -1, args.patch_len)
         
         if ch_num != 22:

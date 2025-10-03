@@ -14,7 +14,7 @@ class CBraMod_Trainer:
 
     @staticmethod
     def set_config(args: Namespace):
-        args.final_dim = args.seq_len*200
+        args.final_dim = int(args.seq_len)*200
         return args
     
     @staticmethod
@@ -89,7 +89,9 @@ class CBraMod(nn.Module):
             x = librosa.resample(x, orig_sr=args.sfreq, target_sr=200)
             x = torch.from_numpy(x).to(f'cuda:{args.gpu_id}')            
         args.patch = 200
-        
+        if x.shape[-1] % args.patch != 0:
+            args.seq_len = int(x.shape[-1] // args.patch)
+            x = x[:, :args.seq_len*args.patch]
         x = x.reshape(bsz, ch_num, -1, args.patch)
         
         emb = model(x)

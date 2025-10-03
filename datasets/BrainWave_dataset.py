@@ -32,6 +32,8 @@ spec_window_secs_dict = {
     'EEGMMIDB_R': 0.25,
     'EEGMMIDB_I': 0.25,
     'BCI-2a': 0.25,
+    'Chisco_read': 0.29,
+    'Chisco_imagine': 0.29,
 }
 
 class BrainWave_Dataset(Dataset):

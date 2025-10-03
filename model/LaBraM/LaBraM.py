@@ -91,6 +91,9 @@ class LaBraM(nn.Module):
             x = torch.from_numpy(x).to(f'cuda:{args.gpu_id}')    
                     
         args.patch_len = 200
+        if x.shape[-1] % 200 != 0:
+            args.seq_len = int(x.shape[-1]//args.patch_len)
+            x = x[:, :args.patch_len*args.seq_len]
         x = x.reshape(bsz, ch_num, -1, args.patch_len)
 
         logit = model(x)

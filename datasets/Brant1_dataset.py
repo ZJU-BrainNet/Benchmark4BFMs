@@ -13,6 +13,9 @@ class Brant1_Dataset(Dataset):
         # y: (seq_num, )
         self.seq_num, self.ch_num, N = x.shape
         x = _std_data_segment(x)    # time level normalization
+        if N % args.patch_len != 0:
+            args.seq_len = int(N // args.patch_len)
+            x = x[:, :, :args.seq_len*args.patch_len]
         x = x.reshape(self.seq_num, self.ch_num, -1, args.patch_len)
 
         self.x = x

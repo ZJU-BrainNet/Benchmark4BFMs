@@ -79,6 +79,9 @@ class BIOT(nn.Module):
     def forward_propagate(args, data_packet, model, clsf, loss_func=None):
         x, y = data_packet
         bsz, ch_num, N = x.shape
+        if N % args.patch_len != 0:
+            args.seq_len = int(N // args.patch_len)
+            x = x[:, :, :args.seq_len*args.patch_len]
         x = x.reshape(bsz, ch_num, -1, args.patch_len)
 
         logit = model(x)

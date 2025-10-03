@@ -1,5 +1,5 @@
 # coding: UTF-8
-import numpy
+import torch
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.special import softmax
@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, t
 from sklearn.metrics import accuracy_score, fbeta_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import auc, precision_recall_curve, roc_curve
-
+from sklearn.metrics import roc_auc_score
 
 
 class BinaryClassMetrics:
@@ -117,7 +117,8 @@ class MultiClassMetrics:
 
         self.k = k
         self.acc = top_k_accuracy_score(true, prob, k=k, labels=np.arange(num_class))
-        
+        prob_normalized = self._ensure_probabilities(prob)
+        self.auc_roc_macro = roc_auc_score(true, prob_normalized, multi_class='ovr', average='macro')
         # self.prec_micro, self.rec_micro, *_ = precision_recall_fscore_support(true, pred, average='micro', zero_division=0)
         # self.f_half_micro = fbeta_score(true, pred, average='micro', beta=0.5)
         # self.f_one_micro  = fbeta_score(true, pred, average='micro', beta=1)
@@ -144,6 +145,13 @@ class MultiClassMetrics:
 
     def get_confusion(self):
         return self.conf_matrix
+    
+    def _ensure_probabilities(self, prob):
+        prob_sums = prob.sum(axis=1)
+        if not np.allclose(prob_sums, 1.0, atol=1e-3):
+            prob_normalized = torch.softmax(torch.tensor(prob), dim=1).numpy()
+            return prob_normalized
+        return prob
 
     def get_metrics(self, one_line=False):
         if one_line:
@@ -181,5 +189,4 @@ class MultiClassMetrics:
         g1.set_ylabel('label')
         g1.set_xlabel('pred')
         plt.show()
-        # plt.savefig(f'/home/zdz/confusion_tar1.eps', format='eps')
 

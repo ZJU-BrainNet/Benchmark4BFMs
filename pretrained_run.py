@@ -6,7 +6,7 @@ import numpy as np
 import time
 import os
 import sys
-sys.path.append('/home/sfq/foundation_model/bench-mark')
+sys.path.append('.../Benchmark4BFMs')
 
 num_threads = '32'
 torch.set_num_threads(int(num_threads))

@@ -1,7 +1,7 @@
 import os
 import pickle
 import sys
-sys.path.append('/home/sfq/foundation_model/bench-mark')
+sys.path.append('.../Benchmark4BFMs')
 from scipy.io import loadmat
 import numpy as np
 from scipy import signal

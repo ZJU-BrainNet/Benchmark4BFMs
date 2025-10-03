@@ -61,7 +61,10 @@ def train_epoch(args, tr_x_list, tr_y_list, model, clsf, loss_func, optimizer, s
             epo_loss += batch_loss.detach().cpu().numpy()
 
         if scheduler is not None:
-            scheduler.step()
+            if args.model == 'TFC':
+                scheduler.step(epo_loss)
+            else:
+                scheduler.step()
         train_dataset.reload_pool.close()
 
     if args.run_mode == 'finetune' or args.run_mode == 'test':

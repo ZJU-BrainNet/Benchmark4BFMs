@@ -8,6 +8,7 @@ from datasets.BrainWave_dataset import BrainWave_Dataset
 from datasets.default_dataset import DefaultDataset
 from datasets.NeuroLM_dataset import NeuroLMDataset
 from datasets.BFM_dataset import BFMDataset
+from datasets.TFC_dataset import TFC_Dataset
 from model.BIOT.BIOT import BIOT_Trainer, BIOT
 from model.BrainBERT.BrainBERT import BrainBERT_Trainer, BrainBERT
 from model.Brant1.Brant1 import Brant1, Brant1_Trainer
@@ -26,6 +27,7 @@ from model.EEGNet.model import EEGNet, EEGNet_Trainer
 from model.SPaRCNet.model import SPaRCNet, SPaRCNet_Trainer
 from model.DeprNet.model import DeprNet, DeprNet_Trainer
 from model.CCNSE.model import CCN_SE_Model, CCN_SE_Trainer
+from model.TFC.TFC import TFC, TFC_Trainer
 from utils.metrics import BinaryClassMetrics, MultiClassMetrics
 
 ### To add a new dataset, please update the following dicts
@@ -69,6 +71,8 @@ get_data_dict = {
     'EEGMMIDB_I': default_get_data,
     'AD-65': default_get_data,
     'BCI-2a': default_get_data,
+    'Chisco_read': default_get_data,
+    'Chisco_imagine': default_get_data,
 }
 
 metrics_dict = {
@@ -97,6 +101,8 @@ metrics_dict = {
     'Depression_122_STAI': MultiClassMetrics,
     'AD-65': BinaryClassMetrics,
     'BCI-2a': MultiClassMetrics,
+    'Chisco_read': MultiClassMetrics,
+    'Chisco_imagine': MultiClassMetrics,
 }
 
 ### To add a new method, please update the following dicts
@@ -120,6 +126,7 @@ dataset_class_dict = {
     'SPaRCNet': DefaultDataset,
     'DeprNet': DefaultDataset,
     'CCNSE': DefaultDataset,
+    'TFC': TFC_Dataset,
 }
 
 trainer_dict = {
@@ -141,6 +148,7 @@ trainer_dict = {
     'SPaRCNet': SPaRCNet_Trainer,
     'DeprNet': DeprNet_Trainer,
     'CCNSE': CCN_SE_Trainer,
+    'TFC': TFC_Trainer,
 }
 
 model_dict = {
@@ -162,6 +170,7 @@ model_dict = {
     'SPaRCNet': SPaRCNet,
     'DeprNet': DeprNet,
     'CCNSE': CCN_SE_Model,
+    'TFC': TFC,
 }
 
 
