@@ -25,7 +25,7 @@ CHANNEL_DICT = {k.upper():v for v,k in enumerate(
         'TP7', 'CP5', 'CP3', 'CP1', 'CPZ', 'CP2', 'CP4', 'CP6', 'TP8',
              'P7', 'P5', 'P3', 'P1', 'PZ', 'P2', 'P4', 'P6', 'P8', 
                       'PO7', "PO5", 'PO3', 'POZ', 'PO4', "PO6", 'PO8', 
-                               'O1', 'OZ', 'O2', ])}
+                               'O1', 'OZ', 'O2', 'FT9', 'FT10'])}
 
 ################################# Utils ######################################
 
@@ -676,7 +676,7 @@ class Conv1dWithConstraint(nn.Conv1d):
         self.doWeightNorm = doWeightNorm
         super(Conv1dWithConstraint, self).__init__(*args, **kwargs)
         
-    @autocast(True)
+    # @autocast(True)
     def forward(self, x):
         if self.doWeightNorm: 
             self.weight.data = torch.renorm(
@@ -690,7 +690,7 @@ class LinearWithConstraint(nn.Linear):
         self.doWeightNorm = doWeightNorm
         super(LinearWithConstraint, self).__init__(*args, **kwargs)
 
-    @autocast(True)
+    # @autocast(True)
     def forward(self, x):
         if self.doWeightNorm: 
             self.weight.data = torch.renorm(
@@ -829,7 +829,10 @@ class EEGPTClassifier(nn.Module):
         else:
             self.predictor  = reconstructor
             
-        self.chans_id       = target_encoder.prepare_chan_ids(use_channels_names)
+        if use_channels_names is not None:
+            self.chans_id = target_encoder.prepare_chan_ids(use_channels_names)
+        else:
+            self.chans_id = None
         
         if (not use_predictor) and use_out_proj:
             embed_dim = 64
@@ -873,7 +876,10 @@ class EEGPTClassifier(nn.Module):
         if self.use_chan_conv:
             x = self.chan_conv(x)
             
-        x = self.target_encoder(x, chan_ids.to(x))
+        if chan_ids is not None:
+            x = self.target_encoder(x, chan_ids.to(x))
+        else:
+            x = self.target_encoder(x, chan_ids)
         
         if not self.use_predictor:
             x = self.reconstructor(x, self.use_out_proj)

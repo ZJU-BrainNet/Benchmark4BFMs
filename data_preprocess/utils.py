@@ -36,7 +36,8 @@ def _segment_data(args, sfreq, data):
     patch_len = int(args.patch_secs * sfreq)
     seq_pts = patch_len * args.seq_len
     seq_num = ch_len // seq_pts
-    data = data[:, :seq_num * seq_pts].reshape(seq_num, ch_num, -1)
+    data = data[:, :seq_num * seq_pts].reshape(ch_num, seq_num, -1)
+    data = data.transpose(1, 0, 2)
     
     return data.astype(np.float32)
 

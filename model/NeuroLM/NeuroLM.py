@@ -29,7 +29,12 @@ class NeuroLM_Trainer:
 
     @staticmethod
     def clsf_loss_func(args):
-        return nn.CrossEntropyLoss()
+        if args.weights is None:
+            ce_weight = [1.0 for _ in range(args.n_class)]
+        else:
+            ce_weight = args.weights
+        print(f'CrossEntropy loss weight = {ce_weight} = {ce_weight[1]/ce_weight[0]:.2f}')
+        return nn.CrossEntropyLoss(torch.tensor(ce_weight, dtype=torch.float32, device=torch.device(args.gpu_id)))
 
     @staticmethod
     def optimizer(args, model, clsf):

@@ -42,7 +42,7 @@ def generate_subject_data(args):
         for sub in subject_list:
             data_path = os.path.join(args.data_root, f'{sub}/eeg')
             file_name = f'{sub}_task-Rest_run-0{run}_eeg.set'
-            if not os.path.exists(file_name): 
+            if not os.path.exists(os.path.join(data_path, file_name)): 
                 continue
             raw = read_raw_eeglab(os.path.join(data_path, file_name), verbose=False, preload=True)
             

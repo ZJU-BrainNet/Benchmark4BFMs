@@ -10,7 +10,7 @@ class PreprocessArgs:
     quality_factor: float = 30
 
     patch_secs: float = 1
-    subject_num: int = 23
+    subject_num: int = 24
     seq_len: int = 10  # secs
     group_num: int = 5
     sfreq: int = 256

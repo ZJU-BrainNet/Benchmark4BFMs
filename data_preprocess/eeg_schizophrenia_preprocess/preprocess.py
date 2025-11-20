@@ -29,8 +29,8 @@ def generate_subject_data(args):
                 subject_name = file.split('.')[0]
                 edf = read_raw_edf(os.path.join(root, file), verbose=False, preload=True)
                 
+                channels = edf.info['ch_names']
                 if not os.path.exists(channel_file):
-                    channels = edf.info['ch_names']
                     with open(channel_file, 'w') as f:
                         json.dump(channels, f)
                         

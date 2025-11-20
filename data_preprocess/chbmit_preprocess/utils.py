@@ -100,7 +100,8 @@ def _segment_data(args, sfreq, data, start, end, seizure_num):
     label = label[:seq_num * seq_pts].reshape(seq_num, seq_pts)
     label = np.mean(label, axis=-1)
     label = np.where(label > args.label_thres, 1, 0)
-    data = data.reshape(seq_num, ch_num, -1)
+    data = data.reshape(ch_num, seq_num, -1)
+    data = data.transpose(1, 0, 2)
 
     return data.astype(np.float32), label
 

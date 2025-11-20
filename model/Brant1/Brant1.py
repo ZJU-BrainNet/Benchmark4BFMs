@@ -26,12 +26,14 @@ class Brant1_Trainer:
 
     @staticmethod
     def clsf_loss_func(args):
-        if args.n_class != 2:
-            import numpy as np
-            ce_weight = [0.8 for _ in range(args.n_class - 1)]
-            ce_weight.append(1.0)
+        if args.weights is None:
+            if args.n_class != 2:
+                ce_weight = [0.8 for _ in range(args.n_class - 1)]
+                ce_weight.append(1.0)
+            else:
+                ce_weight = [0.8, 1]
         else:
-            ce_weight = [0.8, 1]
+            ce_weight = args.weights
         print(f'CrossEntropy loss weight = {ce_weight} = {ce_weight[1]/ce_weight[0]:.2f}')
         return nn.CrossEntropyLoss(torch.tensor(ce_weight, dtype=torch.float32, device=torch.device(args.gpu_id)))
         # return nn.CrossEntropyLoss()

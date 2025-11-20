@@ -33,8 +33,11 @@ def update_logs(args, logs, epo_loss, metrics=None):
             logs[f"F2"] = metrics.f_doub * 100.0
             logs[f"AUPRC"] = metrics.auprc * 100.0
             logs[f"AUROC"] = metrics.auroc * 100.0
+            logs[f'BACC'] = metrics.bacc * 100.0
         elif n_class > 2:
             logs[f"Acc"] = metrics.accuracy * 100.0
+            logs[f"Prec"] = metrics.prec * 100.0
+            logs[f"Rec"] = metrics.rec * 100.0
             logs[f"Loss"] = epo_loss
             logs[f"TopKAcc"] = metrics.acc * 100.0
             logs[f"Sens"] = metrics.spec_mean * 100.0
@@ -42,6 +45,7 @@ def update_logs(args, logs, epo_loss, metrics=None):
             logs[f"MF1"] = metrics.f_one_macro * 100.0
             logs[f"Kappa"] = metrics.kappa * 100.0
             logs[f"AUROC"] = metrics.auc_roc_macro * 100.0
+            logs[f'BACC'] = metrics.bacc * 100.0
         else: raise NotImplementedError(f'Illegal number of classes.')
 
     return logs

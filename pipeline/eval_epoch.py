@@ -42,12 +42,12 @@ def evaluate_epoch(args, x_list, y_list, model, clsf, loss_func, step):
             file_pred = torch.tensor([], dtype=torch.long)
             file_logit = torch.tensor([], dtype=torch.float32)
 
-        for batch_id, data_packet in enumerate(tqdm(valid_loader, disable=args.tqdm_dis, desc=f'file{file_idx}/{file_num}')):
-            # x: (bsz, ch_num, seq_len, patch_len)
-            # y: (bsz, )
-            data_packet = [d.to(device) for d in data_packet]
+        with torch.no_grad():
+            for batch_id, data_packet in enumerate(tqdm(valid_loader, disable=args.tqdm_dis, desc=f'file{file_idx}/{file_num}')):
+                # x: (bsz, ch_num, seq_len, patch_len)
+                # y: (bsz, )
+                data_packet = [d.to(device) for d in data_packet]
 
-            with torch.no_grad():
                 if args.run_mode == 'unsupervised':
                     if args.is_parallel:
                         batch_loss = model.module.forward_propagate(args, data_packet, model, clsf, loss_func)

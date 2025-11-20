@@ -37,7 +37,7 @@ def _segment_data(args, data):
     data = _band_pass_filter(data, args.sfreq, args.high_pass_filter, args.low_pass_filter)
     data = _notch_filter(data, args.sfreq, args.notch_filter, args.quality_factor)
     # normalization
-    data = _std_multi_dim(data)
+    # data = _std_multi_dim(data)
     
     return data.astype(np.float32)
 

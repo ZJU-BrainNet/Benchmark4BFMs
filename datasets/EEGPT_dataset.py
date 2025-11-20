@@ -1,14 +1,30 @@
 import numpy as np
 import torch
+import os
+import json
 from torch.utils.data import Dataset, DataLoader
 
 from data_preprocess.utils import _std_data_segment
+from model.EEGPT.Modules.models.EEGPT_mcae_finetune import CHANNEL_DICT
 
-class DefaultDataset(Dataset):
+class EEGPTDataset(Dataset):
     def __init__(self, args, x, y):
         # x: (seq_num, ch_num, N)
-        # y: (seq_num, )
+        # y: (seq_num, )        
+        channel_path = os.path.join(args.full_data_path, 'channels_lst.json')
+        if os.path.exists(channel_path):
+            with open(channel_path, 'r') as f:
+                channels_names = json.load(f)
+                channels_names = [name.split(' ')[-1].split('-')[0] for name in channels_names]
+            keep_idx = [i for i, n in enumerate(channels_names) if n in CHANNEL_DICT]
+            if len(keep_idx) == 0:
+                raise ValueError("No matching channels found in CHANNEL_DICT!")
+
+            keep_idx = torch.tensor(keep_idx, dtype=torch.long)
+            x = x[:, keep_idx, :]
+            
         self.seq_num, self.ch_num, N = x.shape
+        args.cnn_in_channels = self.ch_num
         x = _std_data_segment(x)    # time level normalization
 
         self.x = x

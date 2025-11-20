@@ -9,6 +9,7 @@ from datasets.default_dataset import DefaultDataset
 from datasets.NeuroLM_dataset import NeuroLMDataset
 from datasets.BFM_dataset import BFMDataset
 from datasets.TFC_dataset import TFC_Dataset
+from datasets.EEGPT_dataset import EEGPTDataset
 from model.BIOT.BIOT import BIOT_Trainer, BIOT
 from model.BrainBERT.BrainBERT import BrainBERT_Trainer, BrainBERT
 from model.Brant1.Brant1 import Brant1, Brant1_Trainer
@@ -121,7 +122,7 @@ dataset_class_dict = {
     'CBraMod': DefaultDataset,
     'NeuroGPT': DefaultDataset,
     'NeuroLM': NeuroLMDataset,
-    'EEGPT': DefaultDataset,
+    'EEGPT': EEGPTDataset,
     'EEGNet': DefaultDataset,
     'SPaRCNet': DefaultDataset,
     'DeprNet': DefaultDataset,

@@ -50,7 +50,11 @@ class CRT_Trainer:
         if args.n_class != 2:
             return nn.BCEWithLogitsLoss()
         else:
-            return nn.CrossEntropyLoss()
+            if args.weights is None:
+                ce_weight = [1.0 for _ in range(args.n_class)]
+            else:
+                ce_weight = args.weights
+            return nn.CrossEntropyLoss(torch.tensor(ce_weight, dtype=torch.float32, device=torch.device(args.gpu_id)))
 
     @staticmethod
     def optimizer(args, model, clsf):

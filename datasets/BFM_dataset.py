@@ -180,4 +180,5 @@ class BFMDataset(Dataset):
         return DataLoader(self,
                           batch_size=batch_size,
                           num_workers=num_workers,
+                          drop_last=False, pin_memory=True,
                           shuffle=shuffle,)

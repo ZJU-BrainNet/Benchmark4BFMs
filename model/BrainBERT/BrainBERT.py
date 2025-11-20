@@ -80,10 +80,16 @@ class BrainBERT_Trainer:
 
     @staticmethod
     def clsf_loss_func(args):
-        if args.n_class != 2:
+        if args.weights is None:
+            if args.n_class != 2:
+                if args.weights is None:
             ce_weight = [1.0 for _ in range(args.n_class)]
         else:
-            ce_weight = [0.1, 1]
+            ce_weight = args.weights
+            else:
+                ce_weight = [0.1, 1]
+        else:
+            ce_weight = args.weights
         print(f'CrossEntropy loss weight = {ce_weight} = {ce_weight[1]/ce_weight[0]:.2f}')
         return nn.CrossEntropyLoss(torch.tensor(ce_weight, dtype=torch.float32, device=torch.device(args.gpu_id)))
 

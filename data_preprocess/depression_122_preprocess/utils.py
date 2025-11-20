@@ -80,7 +80,7 @@ def _merge_data(args, group, score_dict, group_std):
         score = score_dict[sub]
         level = _get_level(score, group_std)
         sub_data = np.load(os.path.join(args.data_save_dir, f'{sub}_data_run1.npy'))
-        sub_label = level * np.ones(sub_data.shape[1], dtype=int)
+        sub_label = level * np.ones(sub_data.shape[0], dtype=int)
 
         sub_data = _std_data_segment(sub_data)
         # bsz, ch_num, _ = sub_data.shape

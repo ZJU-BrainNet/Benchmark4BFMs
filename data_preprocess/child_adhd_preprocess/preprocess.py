@@ -25,7 +25,7 @@ def generate_subject_data(args):
                     sub_name = file.split('.')[0]
                     data = loadmat(os.path.join(root, file))[sub_name]
                     data = np.swapaxes(data, axis1=0, axis2=1)
-                    data = _std_multi_dim(data)
+                    # data = _std_multi_dim(data)
                     data = _segment_data(args, args.sfreq, data)
                     np.save(os.path.join(args.data_save_dir, f'{sub_group}_{sub_name}_data.npy'), data)
                     print(f'data of subject {sub_name} saved')

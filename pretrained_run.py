@@ -21,7 +21,7 @@ import argparse
 import json
 from copy import deepcopy
 from torch import nn
-
+from sklearn.utils.class_weight import compute_class_weight
 from utils.misc import set_seed, load_checkpoint, save_logs, save_checkpoint, update_main_logs, show_logs, process_init
 process_init()
 
@@ -52,11 +52,13 @@ if __name__ == '__main__':
                              help='Number of batches.')
     group_train.add_argument('--save_epochs', type=int, default=5,
                              help='The epoch number to save checkpoint.')
+    group_train.add_argument('--warmup_epoch', type=int, default=3,
+                             help='The epoch number to save checkpoint.')
     group_train.add_argument('--epoch_num', type=int, default=50,
                              help='Epoch number for total iterations.')
     group_train.add_argument('--early_stop', action='store_false',
                              help='Whether to use early stopping technique during training.')
-    group_train.add_argument('--patience', type=int, default=10,
+    group_train.add_argument('--patience', type=int, default=8,
                              help='The waiting epoch number for early stopping.')
     group_train.add_argument('--from_pretrained', action='store_false', # when not --from_pretrained, must set the load_ckpt_path
                              help='Whether to finetune from pretrained weights')
@@ -76,6 +78,7 @@ if __name__ == '__main__':
     group_data = parser.add_argument_group('Data')
     # ISRUC FNUSA CHBMIT UCSD_ON UCSD_OFF ADFD ADHD_Adult ADHD_Child Schizophrenia_28 MPHCE_mdd MPHCE_state SEED_IV
     # SD_71 EEGMat DEAP EEGMMIDB_R EEGMMIDB_I Depression_122_STAI Depression_122_BDI MAYO SleepEDFx AD-65
+    # Chisco_read Chisco_imagine
     group_data.add_argument('--dataset', type=str, default='Schizophrenia_28',  
                             help='The dataset to perform training.')
     group_data.add_argument('--downstream', type=str, default='disorde',  # disorder, emotion, Motor imagine
@@ -112,6 +115,8 @@ if __name__ == '__main__':
     args.cnn_in_channels = data_info_dict[args.dataset]['channel']
     args.seq_len = data_info_dict[args.dataset]['seq_len']
     args.downstream = data_info_dict[args.dataset]['downstream']
+    if 'Chisco' in args.dataset:
+        args.label_path = data_info_dict[args.dataset]['label_path']
 
     trainer = trainer_dict[args.model](args)
     args = trainer.set_config(args)
@@ -128,10 +133,12 @@ if __name__ == '__main__':
     device = torch.device(f'cuda:{args.gpu_id}') if torch.cuda.is_available() else torch.device('cpu')
 
     main_logs = {"epoch": []}
+    args.weights = None
 
     if args.run_mode != 'test':
         tr_x_list, tr_y_list = get_data_dict[args.dataset](args, step='train')
         vl_x_list, vl_y_list = get_data_dict[args.dataset](args, step='valid')
+        args.weights = compute_class_weight('balanced', classes=np.unique(tr_y_list[0]), y=tr_y_list[0])
 
     args.data_id = '{}_ssn{}_sl{}_pl{}'.format(
         args.dataset,
@@ -146,7 +153,8 @@ if __name__ == '__main__':
 
     loss_func = trainer.clsf_loss_func(args)
     optimizer = trainer.optimizer(args, model, clsf)
-    scheduler = trainer.scheduler(optimizer)
+    # scheduler = trainer.scheduler(optimizer)
+    scheduler = None
 
     if args.is_parallel:
         from torch.nn import DataParallel
@@ -197,7 +205,13 @@ if __name__ == '__main__':
             print('Now do inferring using the ckpt.')
         print('-'*50)
     else:
-        print('Not load checkpoints, begin finetuning from pretrained weights.')
+        # args.load_ckpt_path = f'{args.load_ckpt_path}/{args.model}_exp{args.exp_id}_cv{args.cv_id}_{args.data_id}/'
+        # if os.path.exists(os.path.join(args.load_ckpt_path, 'finetune_ckpt', 'backbone.pt')):
+        #     load_path, main_logs = load_checkpoint(args, ckpt_type='finetune')
+        #     args.from_pretrained = False
+        #     print('Load checkpoint:', load_path)
+        # else:
+        #     print('Not load checkpoints, begin finetuning from pretrained weights.')
         best_model_state = deepcopy(model.state_dict())
         best_clsf_state  = deepcopy(clsf .state_dict())
 
@@ -232,47 +246,48 @@ if __name__ == '__main__':
         # cpu_stats()
 
         tr_logs, tr_loss = train_epoch(args, tr_x_list, tr_y_list, model, clsf, loss_func, optimizer, scheduler,)
-        vl_logs, vl_loss = evaluate_epoch(args, vl_x_list, vl_y_list, model, clsf, loss_func, step='valid')
+        if epoch >= args.warmup_epoch:
+            vl_logs, vl_loss = evaluate_epoch(args, vl_x_list, vl_y_list, model, clsf, loss_func, step='valid')
 
-        # print(f'Ran {epoch - start_epoch + 1} epochs in {time.time() - start_time:.2f} seconds')
+            # print(f'Ran {epoch - start_epoch + 1} epochs in {time.time() - start_time:.2f} seconds')
 
-        # process validation loss
-        if vl_loss < best_vl_loss:
-            print(f'Best model state updated. Best valid loss {best_vl_loss:.4f} => {vl_loss:.4f}')
-            best_vl_loss = deepcopy(vl_loss)
-            best_model_state = deepcopy(model.state_dict())
-            best_clsf_state  = deepcopy(clsf .state_dict())
-            wait_epoch = 0
-        elif args.early_stop:
-            wait_epoch += 1
-            print(f'Early stop: wait epoch {wait_epoch}/{args.patience}')
+            # process validation loss
+            if vl_loss < best_vl_loss:
+                print(f'Best model state updated. Best valid loss {best_vl_loss:.4f} => {vl_loss:.4f}')
+                best_vl_loss = deepcopy(vl_loss)
+                best_model_state = deepcopy(model.state_dict())
+                best_clsf_state  = deepcopy(clsf .state_dict())
+                wait_epoch = 0
+            elif args.early_stop:
+                wait_epoch += 1
+                print(f'Early stop: wait epoch {wait_epoch}/{args.patience}')
 
-        # update main logs
-        main_logs = update_main_logs(main_logs, tr_logs, vl_logs, epoch)
+            # update main logs
+            main_logs = update_main_logs(main_logs, tr_logs, vl_logs, epoch)
 
-        # save checkpoint at every epoch
-        if args.save_ckpt_path is not None and (
-                epoch % args.save_epochs == 0 or epoch == args.epoch_num - 1 or
-                wait_epoch >= args.patience):
-            model_state = model.state_dict()
-            clsf_state  = clsf .state_dict()
-            optimizer_state = optimizer.state_dict()
+            # save checkpoint at every epoch
+            if args.save_ckpt_path is not None and (
+                    epoch % args.save_epochs == 0 or epoch == args.epoch_num - 1 or
+                    wait_epoch >= args.patience):
+                model_state = model.state_dict()
+                clsf_state  = clsf .state_dict()
+                optimizer_state = optimizer.state_dict()
 
-            save_checkpoint(
-                model_state,
-                clsf_state,
-                optimizer_state,
-                best_model_state,
-                best_clsf_state,
-                best_vl_loss,
-                f"{args.save_ckpt_path}/0.pt",
-                # f"{args.save_ckpt_path}/{epoch}.pt",
-            )
-            save_logs(main_logs, f"{args.save_ckpt_path}/logs.json")
-            print('Checkpoint and main logs saved.')
+                save_checkpoint(
+                    model_state,
+                    clsf_state,
+                    optimizer_state,
+                    best_model_state,
+                    best_clsf_state,
+                    best_vl_loss,
+                    f"{args.save_ckpt_path}/0.pt",
+                    # f"{args.save_ckpt_path}/{epoch}.pt",
+                )
+                save_logs(main_logs, f"{args.save_ckpt_path}/logs.json")
+                print('Checkpoint and main logs saved.')
 
-        if wait_epoch >= args.patience:
-            break
+            if wait_epoch >= args.patience:
+                break
 
     print('-' * 10, 'Training finished', '-' * 10)
 

@@ -30,10 +30,10 @@ def generate_sub_subject_data(args):
                     raw = sio.loadmat(os.path.join(folder, file))
                     
                     data, labels = [], []
-                    count = 0
                     for key in raw.keys():
                         if '_eeg' not in key:
                             continue
+                        count = int(key[-1])-1
                         
                         sub_data = raw[key]
                         sub_data = _segment_data(args, sub_data)
@@ -60,7 +60,7 @@ def generate_subject_data(args):
     for sub in range(1, args.subject_num+1):
         datas, labels = [], []
         for dir in dirs:
-            if '.npy' in dir or 'group' in dir:
+            if '.npy' in dir or 'group' in dir or '.pkl' in dir:
                 continue
             data = np.load(os.path.join(args.data_save_dir, dir, f'{sub}_{dir}_data.npy'))
             label = np.load(os.path.join(args.data_save_dir, dir, f'{sub}_{dir}_label.npy'))

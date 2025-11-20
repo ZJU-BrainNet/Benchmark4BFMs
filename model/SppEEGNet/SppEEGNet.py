@@ -18,7 +18,10 @@ class SppEEGNet_Trainer:
     @staticmethod
     def clsf_loss_func(args):
         if args.n_class != 2:
+            if args.weights is None:
             ce_weight = [1.0 for _ in range(args.n_class)]
+        else:
+            ce_weight = args.weights
         else:
             ce_weight = [0.3, 1.0]
         print(f'CrossEntropy loss weight = {ce_weight} = {ce_weight[1]/ce_weight[0]:.2f}')

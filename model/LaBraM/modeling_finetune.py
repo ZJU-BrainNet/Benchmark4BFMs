@@ -283,7 +283,7 @@ class NeuralTransformer(nn.Module):
             self.pos_embed = nn.Parameter(torch.zeros(1, 128 + 1, embed_dim), requires_grad=True)
         else:
             self.pos_embed = None
-        self.time_embed = nn.Parameter(torch.zeros(1, 30, embed_dim), requires_grad=True)   # 16 -> 30 for classify sleep stage
+        self.time_embed = nn.Parameter(torch.zeros(1, 16, embed_dim), requires_grad=True)   # 16 -> 30 for classify sleep stage
         self.pos_drop = nn.Dropout(p=drop_rate)
 
         self.rel_pos_bias = None
@@ -347,7 +347,15 @@ class NeuralTransformer(nn.Module):
         self.head = nn.Linear(self.embed_dim, num_classes) if num_classes > 0 else nn.Identity()
 
     def forward_features(self, x, input_chans=None, return_patch_tokens=False, return_all_tokens=False, **kwargs):
+        batch_size, n, a = x.shape
+        if a % 200 != 0:
+            a = (int)(a / 200) * 200
+            x = x.narrow(2, 0, a)
+        x = x.reshape(batch_size, n, -1, 200) 
         batch_size, n, a, t = x.shape
+        if a > 16:
+            x = x.narrow(2, 0, 16)
+            a = 16
         input_time_window = a if t == self.patch_size else t
         x = self.patch_embed(x)
 
@@ -392,9 +400,9 @@ class NeuralTransformer(nn.Module):
         x: [batch size, number of electrodes, number of patches, patch size]
         For example, for an EEG sample of 4 seconds with 64 electrodes, x will be [batch size, 64, 4, 200]
         '''
-        x = self.forward_features(x, input_chans=input_chans, return_patch_tokens=return_patch_tokens, return_all_tokens=return_all_tokens, **kwargs)
-        x = self.head(x)
-        return x
+        logit = self.forward_features(x, input_chans=input_chans, return_patch_tokens=return_patch_tokens, return_all_tokens=return_all_tokens, **kwargs)
+        x = self.head(logit)
+        return logit, x
 
     def forward_intermediate(self, x, layer_id=12, norm_output=False):
         x = self.patch_embed(x)

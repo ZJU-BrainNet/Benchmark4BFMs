@@ -9,7 +9,7 @@ from model.pre_cnn import ChannelConverter
 from model.EEGPT.utils import temporal_interpolation
 from model.EEGPT.Modules.Transformers.pos_embed import create_1d_absolute_sin_cos_embedding
 from model.EEGPT.Modules.models.EEGPT_mcae import EEGTransformer
-
+from model.EEGPT.Modules.models.EEGPT_mcae_finetune import EEGPTClassifier, CHANNEL_DICT
 from model.EEGPT.Modules.Network.utils import Conv1dWithConstraint, LinearWithConstraint
 from model.model_config import ModelPathArgs
 
@@ -20,15 +20,18 @@ class EEGPT_Trainer:
     @staticmethod
     def set_config(args: Namespace):
         args.final_dim = 64
+        args.channel_dict = 62
         return args
 
     @staticmethod
     def clsf_loss_func(args):
-        return torch.nn.CrossEntropyLoss()
-        # ce_weight = [0.1 for _ in range(args.n_class - 1)]
-        # ce_weight.append(1.0)
-        # print(f'CrossEntropy loss weight = {ce_weight} = {ce_weight[1]/ce_weight[0]:.2f}')
-        # return nn.CrossEntropyLoss(torch.tensor(ce_weight, dtype=torch.float32, device=torch.device(args.gpu_id)))
+        if args.weights is None:
+            ce_weight = [1.0 for _ in range(args.n_class)]
+        else:
+            ce_weight = args.weights
+        print(f'CrossEntropy loss weight = {ce_weight} = {ce_weight[1]/ce_weight[0]:.2f}')
+        return nn.CrossEntropyLoss(torch.tensor(ce_weight, dtype=torch.float32, device=torch.device(args.gpu_id)))
+
 
     @staticmethod
     def optimizer(args, model, clsf):
@@ -127,18 +130,44 @@ class LitEEGPTCausal(pl.LightningModule):
 class EEGPT(nn.Module):
     def __init__(self, args: Namespace,):
         super(EEGPT, self).__init__()
-        self.chan_dict = 62
-        if args.cnn_in_channels > self.chan_dict:
-            self.ch_cnn = ChannelConverter(in_channels=args.cnn_in_channels, out_channels=62)
-            args.cnn_in_channels = self.chan_dict
-        self.eegpt = LitEEGPTCausal(args)
+        # self.chan_dict = 62
+        # if args.cnn_in_channels > self.chan_dict:
+        #     self.ch_cnn = ChannelConverter(in_channels=args.cnn_in_channels, out_channels=62)
+        #     args.cnn_in_channels = self.chan_dict
+        # self.eegpt = LitEEGPTCausal(args)
+        channel_path = os.path.join(args.full_data_path, 'channels_lst.json')
+        if os.path.exists(channel_path):
+            with open(channel_path, 'r') as f:
+                channels_names = json.load(f)
+                use_channels_names = [name.split(' ')[-1].split('-')[0] for name in channels_names]
+                use_channels_names = [name for name in use_channels_names if name in CHANNEL_DICT]
+                args.cnn_in_channels = len(use_channels_names)
+        else:
+            use_channels_names = None
+        self.eegpt = EEGPTClassifier(num_classes=args.n_class, in_channels=args.cnn_in_channels, 
+                                     use_channels_names=use_channels_names, img_size=[args.cnn_in_channels,2000],
+                                     use_chan_conv=True, use_predictor=True)
+        load_path = ModelPathArgs.EEGPT_path
+        pretrain_ckpt = torch.load(load_path, map_location=f'cuda:{args.gpu_id}')['state_dict']        
+        
+        current_channel = self.eegpt.target_encoder.chan_embed.weight.shape[0]
+        if current_channel != args.channel_dict:
+            print(f"⚠️ Detected channel mismatch: pretrain {current_channel} vs current {args.channel_dict}")
+            chan_weight = pretrain_ckpt['target_encoder.chan_embed.weight']
+            
+            mean_row = chan_weight.mean(dim=0, keepdim=True)
+            new_weight = mean_row.repeat(current_channel-args.channel_dict, 1)
+            new_weight = torch.cat((chan_weight, new_weight))
+            pretrain_ckpt['target_encoder.chan_embed.weight'] = new_weight
+
+        self.eegpt.load_state_dict(pretrain_ckpt, strict=False)
         # self.cls = LinearWithConstraint(args.final_dim, args.n_class, max_norm=0.25)
         
     def forward(self, x):
         bsz, ch_num, N = x.shape 
-        if ch_num > self.chan_dict:
-            x = self.ch_cnn(x)
-        x, h = self.eegpt(x)
+        # if ch_num > self.chan_dict:
+        #     x = self.ch_cnn(x)
+        h = self.eegpt(x)
         # h = self.cls(h)
         return h
     
@@ -146,9 +175,9 @@ class EEGPT(nn.Module):
     def forward_propagate(args, data_packet, model, clsf, loss_func=None):
         x, y = data_packet
         bsz, ch_num, N = x.shape            
-        emb = model(x)
-        emb = emb.unsqueeze(1)
-        logit = clsf(emb)
+        logit = model(x)
+        # emb = emb.unsqueeze(1)
+        # logit = clsf(emb)
 
         if args.run_mode != 'test':
             loss = loss_func(logit, y)

@@ -24,8 +24,9 @@ def generate_subject_data(args):
                     data_dict = pickle.load(f, encoding='latin1')
                 data = data_dict['data'][:, :args.ch_num, :args.sfreq*60]
                 bsz, ch_num, ch_len = data.shape
-                data = data.reshape(-1, ch_num, args.sfreq*args.seq_len)
-                n = data.shape[0] // bsz
+                n = ch_len // (args.sfreq*args.seq_len)
+                data = data.reshape(bsz, ch_num, args.sfreq*args.seq_len, -1)
+                data = data.transpose(0, 3, 1, 2).reshape(bsz * n, ch_num, -1)
                 
                 # Valence Arousal Dominance Liking (1-9)
                 labels = data_dict['labels']

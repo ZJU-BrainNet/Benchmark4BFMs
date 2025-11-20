@@ -226,6 +226,7 @@ class NeuroLMDataset(Dataset):
         return DataLoader(self,
                           batch_size=batch_size,
                           num_workers=num_workers,
+                          drop_last=False, pin_memory=True,
                           shuffle=shuffle)
         
     def safe_resample(self, data, original_sfreq, target_sfreq=200):

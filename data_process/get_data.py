@@ -36,9 +36,9 @@ def default_get_data(args, step,):
         x = np.load(os.path.join(data_load_path, f'group_{g_id}_data.npy'))
         if len(x.shape) > 3:
             bsz, ch_num, _, _ = x.shape
-            if bsz < ch_num:
-                bsz = x.shape[1]
-                ch_num = x.shape[0]
+            if ch_num != args.cnn_in_channels:
+                x = x.transpose(1,0,2,3)
+                bsz, ch_num, _, _ = x.shape
             x = x.reshape(bsz, ch_num, -1)      # (bsz, ch_num, N)
             
         y = np.load(os.path.join(data_load_path, f'group_{g_id}_label.npy'))

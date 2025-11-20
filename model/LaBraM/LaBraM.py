@@ -22,6 +22,7 @@ class LaBraM_Trainer:
         args.drop = 0.0
         args.drop_path = 0.1
         args.attn_drop_rate = 0.0
+        args.input_size = 200
 
         args.use_mean_pooling = True
         args.init_scale = 0.001
@@ -43,19 +44,22 @@ class LaBraM_Trainer:
 
     @staticmethod
     def clsf_loss_func(args):
-        ce_weight = [1.2 for _ in range(args.n_class - 1)]
-        ce_weight.append(1.0)
+        if args.weights is None:
+            ce_weight = [0.4 for _ in range(args.n_class - 1)]
+            ce_weight.append(1.0)
+        else:
+            ce_weight = args.weights   
         print(f'CrossEntropy loss weight = {ce_weight} = {ce_weight[1]/ce_weight[0]:.2f}')
         return nn.CrossEntropyLoss(torch.tensor(ce_weight, dtype=torch.float32, device=torch.device(args.gpu_id)))
         # return nn.CrossEntropyLoss()
 
     @staticmethod
     def optimizer(args, model, clsf):
-        return torch.optim.AdamW([
-            {'params': filter(lambda p: p.requires_grad, model.model_clsf.blocks.parameters()), 'lr': args.model_lr},
-            {'params': filter(lambda p: p.requires_grad, model.model_clsf.head.parameters()),   'lr': args.clsf_lr},
-        ],
-            betas=(0.9, 0.99), eps=1e-8,
+        return optim.AdamW(
+            [   
+                {'params': filter(lambda p: p.requires_grad, model.parameters()), 'lr': args.model_lr},
+            ],
+            betas=(0.9, 0.95), eps=1e-5,
         )
 
     @staticmethod
@@ -71,11 +75,11 @@ class LaBraM_Trainer:
 class LaBraM(nn.Module):
     def __init__(self, args: Namespace,):
         super(LaBraM, self).__init__()
-        self.model_clsf = self.load_pretrained_weights(args)
-        self.model_clsf = self.freeze_part(args, self.model_clsf)
+        self.model_clsf = self.load_models(args)
+        # self.model_clsf = self.freeze_part(args, self.model_clsf)
 
     def forward(self, x):
-        logit = self.model_clsf(x)
+        _, logit = self.model_clsf(x)
         return logit
 
     @staticmethod
@@ -84,17 +88,17 @@ class LaBraM(nn.Module):
         bsz, ch_num, N = x.shape
         
         # resampling
-        if args.sfreq != 200:
-            x = x.reshape(bsz*ch_num, -1)
-            x = x.to('cpu').numpy()
-            x = librosa.resample(x, orig_sr=args.sfreq, target_sr=200)
-            x = torch.from_numpy(x).to(f'cuda:{args.gpu_id}')    
+        # if args.sfreq != 200:
+        #     x = x.reshape(bsz*ch_num, -1)
+        #     x = x.to('cpu').numpy()
+        #     x = librosa.resample(x, orig_sr=args.sfreq, target_sr=200)
+        #     x = torch.from_numpy(x).to(f'cuda:{args.gpu_id}')    
                     
-        args.patch_len = 200
-        if x.shape[-1] % 200 != 0:
-            args.seq_len = int(x.shape[-1]//args.patch_len)
-            x = x[:, :args.patch_len*args.seq_len]
-        x = x.reshape(bsz, ch_num, -1, args.patch_len)
+        # args.patch_len = 200
+        # if x.shape[-1] % 200 != 0:
+        #     args.seq_len = int(x.shape[-1]//args.patch_len)
+        #     x = x[:, :args.patch_len*args.seq_len]
+        # x = x.reshape(bsz, ch_num, -1, args.patch_len)
 
         logit = model(x)
 
@@ -104,15 +108,13 @@ class LaBraM(nn.Module):
         else:
             return logit, y
 
+    
     @staticmethod
-    def load_pretrained_weights(args):
-
+    def load_models(args):
         from timm.models import create_model
-        from model.LaBraM import modeling_finetune      # must import
-
-        _ = modeling_finetune.NeuralTransformer
-
-        model = create_model(
+        import model.LaBraM.modeling_finetune
+        
+        model_ = create_model(
             'labram_base_patch200_200',
             pretrained=False,
             num_classes=args.n_class,
@@ -127,15 +129,12 @@ class LaBraM(nn.Module):
             init_values=args.layer_scale_init_value,
             qkv_bias=args.qkv_bias,
         )
-
-        if args.finetune.startswith('https'):
-            checkpoint = torch.hub.load_state_dict_from_url(
-                args.finetune, map_location='cpu', check_hash=True)
-        else:
-            checkpoint = torch.load(args.finetune, map_location='cpu')
-
-        print("Load ckpt from %s" % args.finetune)
-        checkpoint_model = None
+        patch_size = model_.patch_size
+        print("Patch size = %s" % str(patch_size))
+        args.window_size = (1, args.input_size // patch_size)
+        args.patch_size = patch_size
+        
+        checkpoint = torch.load(args.finetune, map_location='cpu')
         for model_key in args.model_key.split('|'):
             if model_key in checkpoint:
                 checkpoint_model = checkpoint[model_key]
@@ -153,7 +152,7 @@ class LaBraM(nn.Module):
                     pass
             checkpoint_model = new_dict
 
-        state_dict = model.state_dict()
+        state_dict = model_.state_dict()
         for k in ['head.weight', 'head.bias']:
             if k in checkpoint_model and checkpoint_model[k].shape != state_dict[k].shape:
                 print(f"Removing key {k} from pretrained checkpoint")
@@ -164,9 +163,10 @@ class LaBraM(nn.Module):
             if "relative_position_index" in key:
                 checkpoint_model.pop(key)
 
-        utils.load_state_dict(model, checkpoint_model, prefix=args.model_prefix)
+        utils.load_state_dict(model_, checkpoint_model, prefix='')
+        
+        return model_
 
-        return model
 
     @staticmethod
     def freeze_part(args, model_clsf):
